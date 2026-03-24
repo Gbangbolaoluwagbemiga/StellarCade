@@ -178,4 +178,3 @@ pub fn get_leaderboard(env: Env, round_id: u32, limit: Option<u32>) -> Vec<Addre
 #### Return Type
 
 `Vec<Address>`
-
