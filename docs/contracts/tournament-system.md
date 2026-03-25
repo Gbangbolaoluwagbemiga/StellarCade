@@ -151,4 +151,65 @@ pub fn is_joined(env: Env, id: u64, player: Address) -> bool
 #### Return Type
 
 `bool`
+### `get_bracket_summary`
+Retrieve a summary of the current bracket state.
 
+```rust
+pub fn get_bracket_summary(env: Env, id: u64) -> Result<BracketSummary, Error>
+```
+
+#### Parameters
+| Name | Type |
+|------|------|
+| `env` | `Env` |
+| `id` | `u64` |
+
+#### Return Type
+`Result<BracketSummary, Error>`
+
+### `get_next_matches`
+Retrieve the list of deterministic matchups for the current round.
+
+```rust
+pub fn get_next_matches(env: Env, id: u64) -> Result<Vec<Matchup>, Error>
+```
+
+#### Parameters
+| Name | Type |
+|------|------|
+| `env` | `Env` |
+| `id` | `u64` |
+
+#### Return Type
+`Result<Vec<Matchup>, Error>`
+
+### `advance_round`
+Advance the tournament to the next round based on recorded scores. Admin only.
+
+```rust
+pub fn advance_round(env: Env, admin: Address, id: u64) -> Result<(), Error>
+```
+
+#### Parameters
+| Name | Type |
+|------|------|
+| `env` | `Env` |
+| `admin` | `Address` |
+| `id` | `u64` |
+
+#### Return Type
+`Result<(), Error>`
+
+## Data Structures
+
+### `BracketSummary`
+| Field | Type | Description |
+|-------|------|-------------|
+| `current_round` | `u32` | The current round number (starts at 1) |
+| `remaining_participants` | `u32` | Number of players still active in the current round |
+
+### `Matchup`
+| Field | Type | Description |
+|-------|------|-------------|
+| `player1` | `Address` | First player in the matchup |
+| `player2` | `Option<Address>` | Second player in the matchup (None if bye) |
