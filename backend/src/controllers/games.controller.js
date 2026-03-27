@@ -19,23 +19,12 @@ const getRecentGames = async (req, res, next) => {
     const rawLimit = req.query.limit;
     const rawCursor = req.query.cursor;
 
-    const page = rawPage === undefined ? 1 : parseInt(rawPage, 10);
-    const limit = rawLimit === undefined ? 10 : parseInt(rawLimit, 10);
+    const parsedPage = rawPage === undefined ? 1 : parseInt(rawPage, 10);
+    const parsedLimit = rawLimit === undefined ? 10 : parseInt(rawLimit, 10);
     const cursor = rawCursor === undefined ? undefined : parseInt(rawCursor, 10);
 
-    if (Number.isNaN(page) || page < 1) {
-      const error = new Error('Query parameter "page" must be a positive integer.');
-      error.statusCode = 400;
-      error.code = 'INVALID_QUERY_PARAM';
-      throw error;
-    }
-
-    if (Number.isNaN(limit) || limit < 1) {
-      const error = new Error('Query parameter "limit" must be a positive integer.');
-      error.statusCode = 400;
-      error.code = 'INVALID_QUERY_PARAM';
-      throw error;
-    }
+    const page = Number.isNaN(parsedPage) || parsedPage < 1 ? 1 : parsedPage;
+    const limit = Number.isNaN(parsedLimit) || parsedLimit < 1 ? 10 : parsedLimit;
 
     if (cursor !== undefined && (Number.isNaN(cursor) || cursor < 1)) {
       const error = new Error('Query parameter "cursor" must be a positive integer.');
