@@ -1,6 +1,7 @@
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import type { AppError } from '../../types/errors';
 import { toAppError } from '../../utils/v1/errorMapper';
+import { useAsyncAction } from '../../hooks/v1/useAsyncAction';
 import { ErrorNotice } from './ErrorNotice';
 import './ContractActionButton.css';
 
@@ -29,9 +30,6 @@ export function ContractActionButton<T = unknown>({
   className = '',
   testId = 'contract-action-button',
 }: ContractActionButtonProps<T>) {
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<AppError | null>(null);
-
   const sanitizedLabel = useMemo(() => {
     const trimmed = label.trim();
     return trimmed.length > 0 ? trimmed : 'Run action';
@@ -47,28 +45,41 @@ export function ContractActionButton<T = unknown>({
     return null;
   }, [walletConnected, networkSupported]);
 
-  const isDisabled = disabled || isLoading || blockedReason !== null;
+  // Reusable duplicate-submit guard: preventConcurrent=true ensures rapid
+  // clicks cannot trigger a second submission while one is in-flight.
+  // After failure the state resets to idle so legitimate retries are never blocked.
+  const {
+    isPendingSubmit,
+    error: rawError,
+    run,
+  } = useAsyncAction<T, Error>(
+    action,
+    {
+      preventConcurrent: true,
+      onSuccess: async (result) => {
+        await onSuccess?.(result);
+      },
+      onError: async (err) => {
+        const mapped = toAppError(err);
+        await onError?.(mapped);
+      },
+    },
+  );
+
+  // Map raw error through toAppError so the ErrorNotice always receives AppError
+  const error: AppError | null = rawError ? toAppError(rawError) : null;
+
+  const isDisabled = disabled || isPendingSubmit || blockedReason !== null;
   const preconditionId = blockedReason ? `${testId}-precondition` : undefined;
   const errorId = error ? `${testId}-error-region` : undefined;
   const describedBy = [preconditionId, errorId].filter(Boolean).join(' ') || undefined;
 
   const handleClick = async () => {
-    if (isDisabled) {
-      return;
-    }
-
-    setError(null);
-    setIsLoading(true);
-
+    if (isDisabled) return;
     try {
-      const result = await action();
-      await onSuccess?.(result);
-    } catch (err) {
-      const mapped = toAppError(err);
-      setError(mapped);
-      await onError?.(mapped);
-    } finally {
-      setIsLoading(false);
+      await run();
+    } catch {
+      // errors are handled via onError callback; toAppError mapping happens below
     }
   };
 
@@ -79,12 +90,12 @@ export function ContractActionButton<T = unknown>({
         onClick={handleClick}
         disabled={isDisabled}
         data-testid={testId}
-        aria-busy={isLoading}
-        aria-disabled={isDisabled}
-        aria-describedby={describedBy}
-        className="contract-action-button__button"
-      >
-        {isLoading ? loadingLabel : sanitizedLabel}
+      aria-busy={isPendingSubmit}
+      aria-disabled={isDisabled}
+      aria-describedby={describedBy}
+      className="contract-action-button__button"
+    >
+      {isPendingSubmit ? loadingLabel : sanitizedLabel}
       </button>
 
       {blockedReason && (

@@ -247,6 +247,41 @@
   line-height: 1.4;
 }
 
+/*  Dropped-session reconnect banner (distinct from network-mismatch)  */
+
+.wallet-status-card__dropped-session {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  border: 1px solid #bfdbfe;
+  background: #eff6ff;
+  border-radius: 0.5rem;
+  padding: 0.75rem;
+}
+
+.wallet-status-card__dropped-session-text {
+  color: #1e40af;
+  font-size: 0.8125rem;
+  line-height: 1.4;
+}
+
+.wallet-status-card__btn--reconnect {
+  background-color: #2563eb;
+  color: #ffffff;
+  border-color: #2563eb;
+  padding: 0.375rem 0.875rem;
+  font-size: 0.8125rem;
+}
+.wallet-status-card__btn--reconnect:hover:not(:disabled) {
+  background-color: #1d4ed8;
+  border-color: #1d4ed8;
+}
+.wallet-status-card__btn--reconnect:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 .wallet-status-card__action-btn {
   padding: 0.5rem 1rem;
   font-size: 0.875rem;

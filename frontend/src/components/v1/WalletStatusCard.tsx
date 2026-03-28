@@ -117,6 +117,53 @@ function NetworkRecoveryBanner({
   );
 }
 
+// ── Dropped-session reconnect banner ───────────────────────────────────────────
+
+interface DroppedSessionBannerProps {
+  onReconnect?: () => void | Promise<void>;
+  pending?: boolean;
+  label?: string;
+}
+
+/**
+ * Renders a distinct reconnect-state banner when a wallet session has dropped
+ * unexpectedly. Intentionally styled differently from NetworkRecoveryBanner to
+ * keep the two states visually and semantically separate.
+ */
+function DroppedSessionBanner({
+  onReconnect,
+  pending = false,
+  label = 'Reconnect',
+}: DroppedSessionBannerProps): React.JSX.Element {
+  const handleReconnect = useCallback(
+    () => safeCall(onReconnect, 'onReconnect'),
+    [onReconnect],
+  );
+
+  return (
+    <div
+      className="wallet-status-card__dropped-session"
+      role="alert"
+      aria-live="assertive"
+      data-testid="wallet-dropped-session-banner"
+    >
+      <span className="wallet-status-card__dropped-session-text">
+        Your wallet session ended unexpectedly. Reconnect to continue.
+      </span>
+      <button
+        className="wallet-status-card__btn wallet-status-card__btn--reconnect"
+        type="button"
+        onClick={handleReconnect}
+        disabled={pending || typeof onReconnect !== 'function'}
+        aria-busy={pending}
+        data-testid="wallet-reconnect-btn"
+      >
+        {pending ? 'Reconnecting...' : label}
+      </button>
+    </div>
+  );
+}
+
 function StatusBadge({ variant, label }: StatusBadgeProps): React.JSX.Element {
   return (
     <span
@@ -295,6 +342,10 @@ export const WalletStatusCard: React.FC<WalletStatusCardProps> = ({
   networkMismatch = false,
   networkRecoveryPending = false,
   networkRecoveryLabel,
+  droppedSession = false,
+  onReconnect,
+  reconnectPending = false,
+  reconnectLabel,
   className,
   testId = 'wallet-status-card',
 }) => {
@@ -406,7 +457,17 @@ export const WalletStatusCard: React.FC<WalletStatusCardProps> = ({
         />
       </div>
 
-      {networkMismatch && (
+      {/* ── Dropped-session banner (distinct from network mismatch) ── */}
+      {droppedSession && status !== 'CONNECTED' && (
+        <DroppedSessionBanner
+          onReconnect={onReconnect}
+          pending={reconnectPending}
+          label={reconnectLabel}
+        />
+      )}
+
+      {/* ── Network mismatch banner (only shown when NOT in a dropped-session state) ── */}
+      {networkMismatch && !droppedSession && (
         <NetworkRecoveryBanner
           onRecoverNetwork={onRecoverNetwork}
           pending={networkRecoveryPending}
