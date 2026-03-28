@@ -51,12 +51,12 @@ export const GameLobby: React.FC = () => {
     await retryNetworkCheck();
   }, [retryNetworkCheck]);
 
-  if (loading) return <div className="lobby-loading">Loading elite games...</div>;
-  if (error) return <div className="lobby-error">Failed to load games: {error}</div>;
+  if (loading) return <div className="lobby-loading" role="status" aria-live="polite">Loading elite games...</div>;
+  if (error) return <div className="lobby-error" role="status" aria-live="polite">Failed to load games: {error}</div>;
 
   return (
     <div className="game-lobby">
-      <div className="lobby-dashboard">
+      <section aria-label="Wallet and network status" className="lobby-dashboard">
         <div className="lobby-dashboard__col">
           <NetworkGuardBanner
             network={wallet.network}
@@ -92,30 +92,32 @@ export const GameLobby: React.FC = () => {
 
         <div className="lobby-dashboard__col">
           <div className="lobby-header">
-            <h2>Live Arena</h2>
+            <h2 id="games-heading">Live Arena</h2>
             <p>Real-time game status across the Stellar ecosystem.</p>
           </div>
         </div>
-      </div>
+      </section>
 
-      {games.length === 0 ? (
-        <div className="lobby-empty">
-          <div className="empty-icon">📭</div>
-          <p>No games active at the moment. Check back later!</p>
-        </div>
-      ) : (
-        <div className="games-grid">
-          {games.map((game) => (
-            <StatusCard
-              key={game.id}
-              id={game.id}
-              name={game.name}
-              status={game.status}
-              wager={game.wager as number | undefined}
-            />
-          ))}
-        </div>
-      )}
+      <section aria-labelledby="games-heading" className="games-section">
+        {games.length === 0 ? (
+          <div className="lobby-empty" role="status" aria-live="polite">
+            <div className="empty-icon">📭</div>
+            <p>No games active at the moment. Check back later!</p>
+          </div>
+        ) : (
+          <div className="games-grid" role="region" aria-label="Active games">
+            {games.map((game) => (
+              <StatusCard
+                key={game.id}
+                id={game.id}
+                name={game.name}
+                status={game.status}
+                wager={game.wager as number | undefined}
+              />
+            ))}
+          </div>
+        )}
+      </section>
     </div>
   );
 };
