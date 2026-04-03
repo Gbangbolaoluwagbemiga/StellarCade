@@ -10,7 +10,7 @@ import AppSidebar from './components/v1/AppSidebar';
 import { ModalStackProvider } from './components/v1/modal-stack';
 import { FeatureFlagsProvider } from './services/feature-flags';
 import CommandPalette, { type Command } from './components/v1/CommandPalette';
-import { BrowserRouter } from 'react-router-dom';
+import { BrowserRouter, useNavigate } from 'react-router-dom';
 import { useErrorStore } from './store/errorStore';
 
 const DevContractCallSimulatorPanel = import.meta.env.DEV
@@ -225,13 +225,14 @@ type AppRoute = 'lobby' | 'games' | 'profile';
 const AppContent: React.FC = () => {
   const { t } = useI18n();
   const [route, setRoute] = React.useState<AppRoute>('lobby');
+  const navigate = useNavigate();
 
   const commands: Command[] = [
     {
       id: 'go-lobby',
       label: 'Go to Lobby',
       description: 'Open the game lobby',
-      action: () => setRoute('lobby'),
+      action: () => navigate('/'),
     },
     {
       id: 'go-games',
@@ -243,7 +244,7 @@ const AppContent: React.FC = () => {
       id: 'go-profile',
       label: 'Go to Profile Settings',
       description: 'Open the profile settings page',
-      action: () => setRoute('profile'),
+      action: () => navigate('/profile'),
     },
   ];
 
