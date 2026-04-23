@@ -88,6 +88,14 @@
   letter-spacing: 0.05em;
 }
 
+/* ── Account list (shared by both list and item patterns) ───────────────────── */
+
+.account-switcher__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
 /* ── Account items ──────────────────────────────────────────────────────────── */
 
 .account-switcher__item {

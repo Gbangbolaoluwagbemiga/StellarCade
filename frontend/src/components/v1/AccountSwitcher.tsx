@@ -326,7 +326,9 @@ export const AccountSwitcher: React.FC<AccountSwitcherProps> = ({
 
           {/* Empty recent state */}
           {!isConnected && recentOthers.length === 0 && (
-            <p className="account-switcher__empty">No recent accounts</p>
+            <p className="account-switcher__empty" data-testid={`${testId}-empty`}>
+              No recent accounts
+            </p>
           )}
 
           {/* Actions */}
